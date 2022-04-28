@@ -63,10 +63,15 @@ jobs:
 
           TAGS_TO_CONSIDER=$(git tag -l 'linux-msft-wsl-*')
           for TAG in $TAGS_TO_CONSIDER; do
-            if [ -n "$TAG" ] && echo "$TAG" | grep -Eq '^linux-msft-wsl-([0-9]+\.[0-9]+).*$'; then
-              SNAPD_TAG="${TAG/linux-msft-wsl-/linux-msft-wsl-snapd-}"
+            if [ -n "$TAG" ] && echo "$TAG" | grep -Eq '^linux-msft-(wsl-)?([0-9]+\.[0-9]+).*$'; then
+              case $TAG in
+                linux-msft-wsl-*)
+                  SNAPD_TAG="${TAG/linux-msft-wsl-/linux-msft-snapd-}"; ;;
+                linux-msft-*)
+                  SNAPD_TAG="${TAG/linux-msft-/linux-msft-snapd-}"; ;;
+              esac
               if [ -z "$(git tag -l "$SNAPD_TAG")" ]; then
-                MINOR_VER="$(echo "$TAG" | sed -Ee 's/^linux-msft-wsl-([0-9]+\.[0-9]+).*$/\1/')"
+                MINOR_VER="$(echo "$SNAPD_TAG" | sed -Ee 's/^linux-msft-snapd-([0-9]+\.[0-9]+).*$/\1/')"
                 BRANCH="origin/snapd-support-$MINOR_VER.y"
                 git fetch origin
                 git reset --hard "$TAG"
@@ -75,12 +80,14 @@ jobs:
                   arch/x86/configs/wsl2_defconfig \
                   arch/arm64/configs/wsl2_defconfig \
                   arch/x86/configs/snap_support.config \
-                  arch/arm64/configs/snap_support.config
+                  arch/arm64/configs/snap_support.config \
+                  arch/x86/configs/kvm_support.config \
+                  arch/arm64/configs/kvm_support.config 
 
                 if [ ! -f Microsoft/config-wsl ]; then
                   continue
                 fi
-                make ARCH=x86_64 wsl2_defconfig snap_support.config
+                make ARCH=x86_64 wsl2_defconfig snap_support.config kvm_support.config
                 make -j$(nproc) ARCH=x86_64 && echo "::set-output name=build_x86_64::true" || continue
 
                 if [ -f Microsoft/config-wsl-arm64 ]; then
