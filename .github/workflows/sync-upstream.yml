@@ -33,7 +33,7 @@ jobs:
           git fetch origin --tags
           git fetch upstream
           git fetch upstream --tags
-          git rebase upstream/linux-msft-wsl-5.10.y
+          git reset --hard upstream/linux-msft-wsl-5.10.y
           git push --force        origin HEAD:linux-msft-wsl-5.10.y
           git push --force --tags origin
 
