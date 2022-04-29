@@ -59,6 +59,7 @@ jobs:
             bison \
             flex \
             libelf-dev \
+            dwarves \
             gcc-aarch64-linux-gnu
 
           TAGS_TO_CONSIDER=$(git tag -l 'linux-msft-wsl-*')
